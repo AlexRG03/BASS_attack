@@ -208,8 +208,6 @@ def extend(new_idx: int, p0: polynomial, p1: polynomial) -> polynomial:
     if np.all(p0._idx != p1._idx):
         raise Exception("The polynomials used to extend should be defined in the same space.")
     idx = np.sort(np.append(p0._idx, new_idx))
-    if idx.size > 29:
-        raise Exception("I can't hold this vector in my laptop memory :(")
     i = np.where(idx == new_idx)[0][0]
     l = 2**(idx.size-i-1)
     m = 2**i
