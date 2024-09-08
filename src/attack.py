@@ -6,13 +6,13 @@ def precomputation(pk: list[polynomial]) -> Tuple[polynomial, polynomial]:
     # Given the modified public key, corresponding to a list of 6 polynomials: P_i - a_i and phi(P_i) - a_i, 
     # output the polynomials P and phi(P) as defined on the paper (section 4.2).
     start = time.time()
-    p = polynomial(pk[0]._idx, pk[0]._coef)
+    p = polynomial(pk[0]._idx.copy(), pk[0]._coef.copy())
     p += pk[1]*4
     p += pk[2]*16
     end = time.time()
     print("P calculated in: ", end-start, " seconds, ", (end-start)/60, " minutes.")
     start = time.time()
-    phi_p = polynomial(pk[3]._idx, pk[3]._coef)
+    phi_p = polynomial(pk[3]._idx.copy(), pk[3]._coef.copy())
     phi_p += pk[4]*4
     phi_p += pk[5]*16
     end = time.time()

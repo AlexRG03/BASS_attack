@@ -13,7 +13,7 @@ class polynomial:
     def __init__(self, idx: np.array, coef: np.array = None) -> None:
         # Function to initiallize the class
         if coef is None:
-            self._coef = np.array([0]*(2**idx.size))
+            self._coef = np.zeros(2**idx.size, dtype=np.int64)
         elif 2**idx.size == coef.size: 
             self._coef = coef
         else:
@@ -130,7 +130,6 @@ class polynomial:
         # Procedure to print the polynomial
         return self.print()
 
-
 class automorphism:
     # Class automorphism, defined as a list of images (d) for each phi(e_c).
     _domain_idx: np.array
@@ -160,9 +159,8 @@ class automorphism:
 
     def apply(self, poly: polynomial) -> polynomial:
         # Computes psi(poly), which is a polynomial in the orthogonal basis. Part of the signing algorithm.
-        psi = automorphism(np.union1d(poly._idx, self._domain_idx), self._image_idx)
         for idx in np.setdiff1d(poly._idx, self._domain_idx): # psi is extended in domain (phi(P) variables) to all Q's domain
-            psi.extend_psi(idx)
+            self.extend_psi(idx)
         for idx in np.setdiff1d(self._domain_idx, poly._idx): # Q is extended to all P variables
             poly.add_new_idx(idx)
         result = polynomial(self._image_idx)
@@ -172,6 +170,7 @@ class automorphism:
             result.add_ec(d, poly._coef[i])
         return result
     
+    # c and d can be integers and then simplify the function (which gives wrong outputs)
     def include_partial_psi(self, psi_c: automorphism, c: np.array, d: np.array) -> None:
         # Given that psi(e_c)=e_d and we found a solution psi_c to a smaller problem, join this solution to our actual problem.
         # Use the relation: psi(e_{c||c'})=e_d·psi_c(e_{c'}), as described on the paper, Algorithm 5.
@@ -188,18 +187,24 @@ class automorphism:
         n = psi_c._domain_idx.size
         i=0
         for binary_tuple in itertools.product([0, 1], repeat=n):
-            c = np.concatenate((np.array(binary_tuple), c))[domain_idx_order]
-            d = np.concatenate((psi_c._image[i], d))[image_idx_order]
-            self.set_img(c, d)
+            c_vec = np.concatenate((np.array(binary_tuple), c))[domain_idx_order]
+            d_vec = np.concatenate((psi_c._image[i], d))[image_idx_order]
+            self.set_img(c_vec, d_vec)
             i += 1
         return self
     
     def extend_psi(self, new_idx: int) -> automorphism:
         # Extend the definition of psi to a new index.
+        if new_idx in self._domain_idx: 
+            print("Error call")
+            return self
         psi = automorphism(np.concatenate((self._domain_idx, np.array([new_idx]))), self._image_idx)
         psi.include_partial_psi(self, np.array([0]), np.array([0]))
         psi.include_partial_psi(self, np.array([1]), np.array([1]))
-        return psi
+        self._domain_idx = psi._domain_idx
+        self._image_idx = psi._image_idx
+        self._image = psi._image
+        return self
 
 def extend(new_idx: int, p0: polynomial, p1: polynomial) -> polynomial:
     # Define a new polynomial corresponding to p = x_l·p1+(1-x_l)·p0, where l = new_idx.
