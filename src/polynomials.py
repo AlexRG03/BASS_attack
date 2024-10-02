@@ -148,13 +148,14 @@ class automorphism:
             self._image_idx = np.sort(image_idx)
         n = self._image_idx.size
         m = 2**(n)
-        self._image = np.zeros((m,n), dtype=domain_idx.dtype)
+        self._image = np.zeros((m), dtype=domain_idx.dtype)
     
     def set_img(self, c: np.array, d: np.array) -> None: 
         # Set psi(e_c) = e_d
         c = np.array(c, dtype=int)
         d = np.array(d, dtype=int)
-        self._image[int(''.join(c.astype(str)), 2)]=d
+        # self._image[int(''.join(c.astype(str)), 2)]=d
+        self._image[int(''.join(d.astype(str)), 2)]=int(''.join(c.astype(str)), 2)
         return self
 
     def apply(self, poly: polynomial) -> polynomial:
@@ -163,14 +164,14 @@ class automorphism:
             self.extend_psi(idx)
         for idx in np.setdiff1d(self._domain_idx, poly._idx): # Q is extended to all P variables
             poly.add_new_idx(idx)
-        result = polynomial(self._image_idx)
-        n = 2**self._domain_idx.size
-        for i in range(n):
-            d = self._image[i]
-            result.add_ec(d, poly._coef[i])
-        return result
+        print("Now applying")
+        start = time.time()
+        poly._coef = poly._coef[self._image]
+        end = time.time()
+        print("apply time: ", (end-start)/60, " minutes.")
+        poly._idx = self._image_idx
+        return poly
     
-    # c and d can be integers and then simplify the function (which gives wrong outputs)
     def include_partial_psi(self, psi_c: automorphism, c: np.array, d: np.array) -> None:
         # Given that psi(e_c)=e_d and we found a solution psi_c to a smaller problem, join this solution to our actual problem.
         # Use the relation: psi(e_{c||c'})=e_d·psi_c(e_{c'}), as described on the paper, Algorithm 5.
@@ -188,7 +189,7 @@ class automorphism:
         i=0
         for binary_tuple in itertools.product([0, 1], repeat=n):
             c_vec = np.concatenate((np.array(binary_tuple), c))[domain_idx_order]
-            d_vec = np.concatenate((psi_c._image[i], d))[image_idx_order]
+            d_vec = np.concatenate((int_to_binary(psi_c._image[i], n), d))[image_idx_order]
             self.set_img(c_vec, d_vec)
             i += 1
         return self
@@ -205,6 +206,9 @@ class automorphism:
         self._image_idx = psi._image_idx
         self._image = psi._image
         return self
+
+def int_to_binary(num, width):
+    return np.array([int(bit) for bit in f'{num:0{width}b}'])
 
 def extend(new_idx: int, p0: polynomial, p1: polynomial) -> polynomial:
     # Define a new polynomial corresponding to p = x_l·p1+(1-x_l)·p0, where l = new_idx.
