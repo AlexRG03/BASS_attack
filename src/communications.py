@@ -2,7 +2,7 @@ from polynomials import *
 from typing import Tuple
 import re
 
-def read_pk(file_path: str) -> Tuple[list[polynomial], polynomial]:
+def read_pk(file_path: str, read_q: bool = True) -> Tuple[list[polynomial], polynomial]:
     # Returns a list of 6 polynomials, corresponding to p_i - a_i, phi(p_i) - a_i and the polynomial Q.
     with open(file_path, 'r') as file:
         content = file.read()
@@ -26,7 +26,8 @@ def read_pk(file_path: str) -> Tuple[list[polynomial], polynomial]:
     end = time.time()
     print("phi_p3 calculated in: ", end-start, " seconds. Size: 2^", phi_p3._idx.size)
     start = time.time()
-    q, _ = find_polynomial(lines[6])
+    if read_q: q, _ = find_polynomial(lines[6])
+    else: q = polynomial(np.array([0]))
     end = time.time()
     print("Q calculated in: ", end-start, " seconds. Size: 2^", q._idx.size)
     p1 += a1
