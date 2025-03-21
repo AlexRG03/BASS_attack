@@ -1,5 +1,5 @@
 # BASS_attack
-Implementation of the BASS attack described in (link paper)
+Implementation of the BASS attack described in https://eprint.iacr.org/2024/1808.pdf
 
 The 'pk_functions' folder contains the data structures and functions described in the BASS paper, such as key generation, signing and verification functions.
 

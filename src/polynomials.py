@@ -21,8 +21,7 @@ class polynomial:
         self._idx = np.sort(idx)
 
     def add_bc(self, mono_idx: np.array, coef: int = 1) -> None:
-        # Add the monomial in standard basis to the polynomial, expressed in the orthogonal basis. This 
-        # algorithm substitutes Algorithm 2 of the paper.
+        # Add the monomial in standard basis to the polynomial, expressed in the orthogonal basis.
         if coef == 0:
             return
         if not np.all(np.in1d(mono_idx, self._idx)): # Check that the polynomial is defined in the same space
@@ -98,8 +97,7 @@ class polynomial:
 
  
     def print(self, terms: str = "") -> str:
-        # Returns a string that represents the polynomial in the standard basis. 
-        # Function described on the paper as Algorithm 7.
+        # Returns a string that represents the polynomial in the standard basis. This is a very slow function.
         word = "0"
         last_idx = self._idx[-1]
         if self._idx.size == 1:
@@ -174,7 +172,7 @@ class automorphism:
     
     def include_partial_psi(self, psi_c: automorphism, c: np.array, d: np.array) -> None:
         # Given that psi(e_c)=e_d and we found a solution psi_c to a smaller problem, join this solution to our actual problem.
-        # Use the relation: psi(e_{c||c'})=e_d·psi_c(e_{c'}), as described on the paper, Algorithm 5.
+        # Use the relation: psi(e_{c||c'})=e_d·psi_c(e_{c'}), as described on the paper, section 6.1.
         domain_extension_idx = np.setdiff1d(self._domain_idx, psi_c._domain_idx)
         image_extension_idx = np.setdiff1d(self._image_idx, psi_c._image_idx)
         if domain_extension_idx.size + psi_c._domain_idx.size != self._domain_idx.size:

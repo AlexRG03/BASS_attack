@@ -45,15 +45,17 @@ def find_polynomial(poly_str: str, add: int = 0) -> Tuple[polynomial, int]:
     mono = parts[1]+"·"
     matches = re.findall(r'x_(\d+)(?=\·)', mono)
     idx = list(set(int(match) for match in matches))
-
+    pri = True
     # Declare the output
     poly = polynomial(np.array(idx))
     poly += add
     poly += int(parts[0])
     a = 0
-
+    ii = 0
     # Explore all monomials 
     for m in parts[1:]:
+        ii += 1
+        if pri: print(ii, " / ", len(parts))
         coef_str = m.split("x")[0]
         if coef_str == "":
             coef = 1

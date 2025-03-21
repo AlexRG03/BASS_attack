@@ -63,8 +63,7 @@ class prediction:
         return "x_"+str(self.x)+" -> x_"+str(self.phi_x)
     
 def find_predictions(p: polynomial, phi_p: polynomial, partial_pred: list[prediction] = []) -> list[prediction]:
-    # Find all feasible solutions, given a list of already feasible solutions. Algorithm described on the 
-    # paper as Algorithm 3 (with some modification)
+    # Find all feasible solutions, given a list of already feasible solutions. 
     n = p._idx.size
     if phi_p._idx.size != n: 
         raise Exception("Wrong call.")
@@ -85,8 +84,7 @@ def find_predictions(p: polynomial, phi_p: polynomial, partial_pred: list[predic
     return predictions
 
 def find_all_predictions(p: polynomial, phi_p:polynomial, all_pred: list[prediction] = []) -> list[prediction]:
-    # Find all feasible and compatible solutions, given a list of already compatible solutions. Algorithm described on the 
-    # paper as Algorithm 4 (with some modification)
+    # Find all feasible and compatible solutions, given a list of already compatible solutions.
     if len(all_pred) == 0:
         partial_pred = find_predictions(p, phi_p)
         if len(partial_pred) == 0:
@@ -109,7 +107,7 @@ def find_all_predictions(p: polynomial, phi_p:polynomial, all_pred: list[predict
     return all_pred
 
 def find_psi(p: polynomial, phi_p:polynomial, pred: list[prediction] = []) -> automorphism:
-    # Algorithm that finds an automorphism psi as described on the paper as Algorithm 5.
+    # Algorithm that finds an automorphism psi, first computing a list of predictions
     if p._idx.size < 4:
         return fifo(p, phi_p)
     pred = find_all_predictions(p, phi_p, pred)
