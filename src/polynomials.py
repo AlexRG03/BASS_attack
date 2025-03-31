@@ -69,11 +69,9 @@ class polynomial:
                 self.add_new_idx(idx)
             for idx in np.setdiff1d(self._idx, other._idx):
                 other.add_new_idx(idx)
-            self._coef *= other._coef # Elementwise product
-            return self
+            return polynomial(self._idx, self._coef * other._coef) # Elementwise product
         if isinstance(other, int):
-            self._coef *= other
-            return self
+            return polynomial(self._idx, self._coef * other)
         raise Exception("Operation not supported")
     
     def eval(self, idx: int, value: int) -> polynomial:
@@ -158,6 +156,7 @@ class automorphism:
 
     def apply(self, poly: polynomial) -> polynomial:
         # Computes psi(poly), which is a polynomial in the orthogonal basis. Part of the signing algorithm.
+        print("Expanding the domain before applying (this may take a while)")
         for idx in np.setdiff1d(poly._idx, self._domain_idx): # psi is extended in domain (phi(P) variables) to all Q's domain
             self.extend_psi(idx)
         for idx in np.setdiff1d(self._domain_idx, poly._idx): # Q is extended to all P variables
@@ -166,7 +165,7 @@ class automorphism:
         start = time.time()
         poly._coef = poly._coef[self._image]
         end = time.time()
-        print("apply time: ", (end-start)/60, " minutes.")
+        print(f"Apply time: {(end-start)/60} minutes.")
         poly._idx = self._image_idx
         return poly
     
@@ -195,7 +194,6 @@ class automorphism:
     def extend_psi(self, new_idx: int) -> automorphism:
         # Extend the definition of psi to a new index.
         if new_idx in self._domain_idx: 
-            print("Error call")
             return self
         psi = automorphism(np.concatenate((self._domain_idx, np.array([new_idx]))), self._image_idx)
         psi.include_partial_psi(self, np.array([0]), np.array([0]))
